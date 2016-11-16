@@ -85,11 +85,18 @@ class Client:
         # server tells client to send the file if name is unique
         if self.sock.recv(1024).decode() == '1':
             # get contents of file
+
+            
             file = open(fileName, "rb")
 
             #break file down into 1024 byte chunks
             chunk = file.read(1024)
-            self.sock.send(chunk)
+            #added the following short loop, if what I read is right this should help send the full file and then end the file with the shutdown method call
+            while (chunk):
+                self.sock.send(chunk)
+                chunk = file.read(1024)
+            file.close()
+            
 
             # TODO: PROTOCOL FOR END OF FILE (currently only sends first 1024 bytes)
             # TODO: HAVE TO NOTIFY DATA RETRIEVER WHEN FILE IS DONE
@@ -104,6 +111,7 @@ class Client:
 
         response = int(self.sock.recv(1024).decode())
         return response
+    
 
     def search(self, fileName):
         """
